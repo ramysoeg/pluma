@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Pluma Framework - Development Server CLI
+ */
+
+$host = $argv[1] ?? '0.0.0.0';
+$port = $argv[2] ?? 12000;
+
+echo "Starting Pluma development server at http://{$host}:{$port}\n";
+echo "Press Ctrl+C to stop the server\n\n";
+
+passthru("php -S {$host}:{$port} -t public server.php");

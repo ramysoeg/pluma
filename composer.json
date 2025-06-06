@@ -1,0 +1,22 @@
+{
+    "name": "ramysoeg/pluma",
+    "description": "A lightweight PHP framework with namespace support",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Pluma\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Pluma\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    }
+}
