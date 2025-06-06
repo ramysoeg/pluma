@@ -8,7 +8,7 @@ Pluma é um framework PHP leve e moderno que utiliza sistema de namespaces para 
 - Arquitetura MVC
 - Injeção de dependências
 - ORM básico para interação com banco de dados
-- Sistema de templates
+- Sistema de templates Petal
 - Middleware
 - PSR-4 autoloading
 - Tipagem estrita
@@ -270,6 +270,61 @@ $db = new \Pluma\Database\Database([
     'username' => 'sa',
     'password' => 'secret',
 ]);
+```
+
+## Sistema de Templates Petal
+
+O Pluma Framework inclui um poderoso sistema de templates chamado Petal, que permite escrever templates HTML com sintaxe elegante e recursos avançados:
+
+### Características do Petal
+
+- Herança de templates com `@extends` e `@section`
+- Saída com escape automático: `{{ $variable }}`
+- Saída sem escape: `{!! $variable !!}`
+- Comentários: `{# Este é um comentário #}`
+- Estruturas de controle: `@if`, `@foreach`, `@for`, etc.
+- Inclusão de sub-templates: `@include('template')`
+- Diretivas personalizadas
+
+### Exemplo de Template Petal
+
+```php
+@extends('layouts.app')
+
+@section('content')
+    <div class="card">
+        <div class="card-header">
+            <h1>{{ $title }}</h1>
+        </div>
+        <div class="card-body">
+            <p>{{ $message }}</p>
+            
+            @if($showButton)
+                <a href="/docs" class="btn btn-primary">Documentação</a>
+            @endif
+            
+            <ul>
+                @foreach($items as $item)
+                    <li>{{ $item }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+@endsection
+```
+
+### Usando o Petal em Controllers
+
+```php
+public function index(): string
+{
+    return $this->view('welcome', [
+        'title' => 'Bem-vindo ao Pluma',
+        'message' => 'Um framework PHP moderno',
+        'showButton' => true,
+        'items' => ['Item 1', 'Item 2', 'Item 3']
+    ]);
+}
 ```
 
 ## Contribuindo
