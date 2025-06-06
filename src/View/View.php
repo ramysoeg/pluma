@@ -8,30 +8,24 @@ namespace Pluma\View;
 class View
 {
     /**
-     * @var string The view path
-     */
-    protected string $viewPath;
-    
-    /**
-     * @var array The view data
-     */
-    protected array $data = [];
-    
-    /**
      * View constructor
-     * 
-     * @param string $viewPath The path to the views directory
      */
-    public function __construct(string $viewPath = null)
-    {
-        $this->viewPath = $viewPath ?? PLUMA_ROOT . '/resources/views';
+    public function __construct(
+        /**
+         * The view path
+         */
+        protected string $viewPath = '',
+        
+        /**
+         * The view data
+         */
+        protected array $data = []
+    ) {
+        $this->viewPath = $viewPath ?: PLUMA_ROOT . '/resources/views';
     }
     
     /**
      * Set the view path
-     * 
-     * @param string $viewPath The path to the views directory
-     * @return self
      */
     public function setViewPath(string $viewPath): self
     {
@@ -42,8 +36,6 @@ class View
     
     /**
      * Get the view path
-     * 
-     * @return string The path to the views directory
      */
     public function getViewPath(): string
     {
@@ -52,12 +44,8 @@ class View
     
     /**
      * Set view data
-     * 
-     * @param string $key The data key
-     * @param mixed $value The data value
-     * @return self
      */
-    public function set(string $key, $value): self
+    public function set(string $key, mixed $value): self
     {
         $this->data[$key] = $value;
         
@@ -66,9 +54,6 @@ class View
     
     /**
      * Set multiple view data
-     * 
-     * @param array $data The data to set
-     * @return self
      */
     public function setData(array $data): self
     {
@@ -79,20 +64,14 @@ class View
     
     /**
      * Get view data
-     * 
-     * @param string $key The data key
-     * @param mixed $default The default value if the data doesn't exist
-     * @return mixed The data value
      */
-    public function get(string $key, $default = null)
+    public function get(string $key, mixed $default = null): mixed
     {
         return $this->data[$key] ?? $default;
     }
     
     /**
      * Get all view data
-     * 
-     * @return array All view data
      */
     public function getData(): array
     {
@@ -101,10 +80,6 @@ class View
     
     /**
      * Render a view
-     * 
-     * @param string $view The view name
-     * @param array $data The view data
-     * @return string The rendered view
      */
     public function render(string $view, array $data = []): string
     {
@@ -128,14 +103,11 @@ class View
         include $viewFile;
         
         // Get the contents of the buffer
-        return ob_get_clean();
+        return ob_get_clean() ?: '';
     }
     
     /**
      * Get the view file path
-     * 
-     * @param string $view The view name
-     * @return string The view file path
      */
     protected function getViewFile(string $view): string
     {
@@ -143,7 +115,7 @@ class View
         $view = str_replace('.', DIRECTORY_SEPARATOR, $view);
         
         // Add the .php extension if not present
-        if (!preg_match('/\.php$/', $view)) {
+        if (!str_ends_with($view, '.php')) {
             $view .= '.php';
         }
         

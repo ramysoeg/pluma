@@ -12,35 +12,28 @@ class ExampleController extends Controller
 {
     /**
      * Show the welcome page
-     * 
-     * @return string The rendered view
      */
     public function index(): string
     {
         return $this->view('welcome', [
             'title' => 'Welcome to Pluma Framework',
-            'message' => 'A lightweight PHP framework with namespace support',
+            'message' => 'A lightweight PHP framework with namespace support for PHP 8.2+',
         ]);
     }
     
     /**
      * Show the about page
-     * 
-     * @return string The rendered view
      */
     public function about(): string
     {
         return $this->view('about', [
             'title' => 'About Pluma Framework',
-            'message' => 'Pluma is a lightweight PHP framework with namespace support',
+            'message' => 'Pluma is a lightweight PHP framework with namespace support for PHP 8.2+',
         ]);
     }
     
     /**
      * Show user profile
-     * 
-     * @param int $id The user ID
-     * @return string The rendered view
      */
     public function profile(int $id): string
     {
@@ -52,19 +45,24 @@ class ExampleController extends Controller
     
     /**
      * API example
-     * 
-     * @param Request $request The request instance
-     * @return void
      */
-    public function api(Request $request): void
+    public function api(): never
     {
         $this->json([
             'success' => true,
             'message' => 'API response',
             'data' => [
-                'method' => $request->getRequestMethod(),
-                'path' => $request->getRequestPath(),
-                'query' => $request->getQueryParams(),
+                'method' => $this->request->getRequestMethod(),
+                'path' => $this->request->getRequestPath(),
+                'query' => $this->request->getQueryParams(),
+                'php_version' => PHP_VERSION,
+            ],
+            'framework' => [
+                'name' => 'Pluma',
+                'version' => '1.0.0',
+                'requirements' => [
+                    'php' => '>=8.2',
+                ],
             ],
         ]);
     }

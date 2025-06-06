@@ -9,7 +9,7 @@ require_once __DIR__ . '/../bootstrap/autoload.php';
 
 // Load environment variables if .env file exists
 if (file_exists(PLUMA_ROOT . '/.env')) {
-    $dotenv = new \Dotenv\Dotenv(PLUMA_ROOT);
+    $dotenv = \Dotenv\Dotenv::createImmutable(PLUMA_ROOT);
     $dotenv->load();
 }
 

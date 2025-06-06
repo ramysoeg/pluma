@@ -8,7 +8,7 @@ namespace Pluma\Http;
 class Router
 {
     /**
-     * @var array The registered routes
+     * The registered routes
      */
     protected array $routes = [
         'GET' => [],
@@ -19,74 +19,54 @@ class Router
     ];
     
     /**
-     * Register a GET route
-     * 
-     * @param string $path The route path
-     * @param mixed $handler The route handler
-     * @return self
+     * The route group prefix
      */
-    public function get(string $path, $handler): self
+    protected string $prefix = '';
+    
+    /**
+     * Register a GET route
+     */
+    public function get(string $path, mixed $handler): self
     {
         return $this->addRoute('GET', $path, $handler);
     }
     
     /**
      * Register a POST route
-     * 
-     * @param string $path The route path
-     * @param mixed $handler The route handler
-     * @return self
      */
-    public function post(string $path, $handler): self
+    public function post(string $path, mixed $handler): self
     {
         return $this->addRoute('POST', $path, $handler);
     }
     
     /**
      * Register a PUT route
-     * 
-     * @param string $path The route path
-     * @param mixed $handler The route handler
-     * @return self
      */
-    public function put(string $path, $handler): self
+    public function put(string $path, mixed $handler): self
     {
         return $this->addRoute('PUT', $path, $handler);
     }
     
     /**
      * Register a PATCH route
-     * 
-     * @param string $path The route path
-     * @param mixed $handler The route handler
-     * @return self
      */
-    public function patch(string $path, $handler): self
+    public function patch(string $path, mixed $handler): self
     {
         return $this->addRoute('PATCH', $path, $handler);
     }
     
     /**
      * Register a DELETE route
-     * 
-     * @param string $path The route path
-     * @param mixed $handler The route handler
-     * @return self
      */
-    public function delete(string $path, $handler): self
+    public function delete(string $path, mixed $handler): self
     {
         return $this->addRoute('DELETE', $path, $handler);
     }
     
     /**
      * Register a route for multiple HTTP methods
-     * 
-     * @param array $methods The HTTP methods
-     * @param string $path The route path
-     * @param mixed $handler The route handler
-     * @return self
      */
-    public function match(array $methods, string $path, $handler): self
+    public function match(array $methods, string $path, mixed $handler): self
     {
         foreach ($methods as $method) {
             $this->addRoute(strtoupper($method), $path, $handler);
@@ -97,26 +77,43 @@ class Router
     
     /**
      * Register a route for all HTTP methods
-     * 
-     * @param string $path The route path
-     * @param mixed $handler The route handler
-     * @return self
      */
-    public function any(string $path, $handler): self
+    public function any(string $path, mixed $handler): self
     {
         return $this->match(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], $path, $handler);
     }
     
     /**
-     * Add a route to the router
-     * 
-     * @param string $method The HTTP method
-     * @param string $path The route path
-     * @param mixed $handler The route handler
-     * @return self
+     * Create a route group with a prefix
      */
-    protected function addRoute(string $method, string $path, $handler): self
+    public function group(string $prefix, callable $callback): self
     {
+        // Save the current prefix
+        $previousPrefix = $this->prefix;
+        
+        // Add the new prefix
+        $this->prefix = $previousPrefix . $prefix;
+        
+        // Execute the callback
+        $callback($this);
+        
+        // Restore the previous prefix
+        $this->prefix = $previousPrefix;
+        
+        return $this;
+    }
+    
+    /**
+     * Add a route to the router
+     */
+    protected function addRoute(string $method, string $path, mixed $handler): self
+    {
+        // Prepend the prefix to the path
+        $path = $this->prefix . '/' . ltrim($path, '/');
+        
+        // Normalize the path (remove duplicate slashes)
+        $path = '/' . trim($path, '/');
+        
         $this->routes[$method][$path] = [
             'path' => $path,
             'handler' => $handler,
@@ -127,9 +124,6 @@ class Router
     
     /**
      * Resolve a route from a request
-     * 
-     * @param Request $request The request to resolve
-     * @return array|null The resolved route or null if no route matches
      */
     public function resolve(Request $request): ?array
     {
@@ -161,9 +155,6 @@ class Router
     
     /**
      * Convert a route path to a regular expression
-     * 
-     * @param string $route The route path
-     * @return string The regular expression
      */
     protected function convertRouteToRegex(string $route): string
     {
@@ -179,8 +170,6 @@ class Router
     
     /**
      * Get all registered routes
-     * 
-     * @return array The registered routes
      */
     public function getRoutes(): array
     {

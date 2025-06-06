@@ -8,26 +8,21 @@ namespace Pluma\Container;
 class Container
 {
     /**
-     * @var array The container bindings
+     * The container bindings
      */
     protected array $bindings = [];
     
     /**
-     * @var array The resolved instances
+     * The resolved instances
      */
     protected array $instances = [];
     
     /**
      * Bind a type into the container
-     * 
-     * @param string $abstract The abstract type
-     * @param mixed $concrete The concrete implementation
-     * @param bool $shared Whether the binding should be shared
-     * @return void
      */
-    public function bind(string $abstract, $concrete = null, bool $shared = false): void
+    public function bind(string $abstract, mixed $concrete = null, bool $shared = false): void
     {
-        if (is_null($concrete)) {
+        if ($concrete === null) {
             $concrete = $abstract;
         }
         
@@ -39,24 +34,16 @@ class Container
     
     /**
      * Register a shared binding in the container
-     * 
-     * @param string $abstract The abstract type
-     * @param mixed $concrete The concrete implementation
-     * @return void
      */
-    public function singleton(string $abstract, $concrete = null): void
+    public function singleton(string $abstract, mixed $concrete = null): void
     {
         $this->bind($abstract, $concrete, true);
     }
     
     /**
      * Set an instance in the container
-     * 
-     * @param string $abstract The abstract type
-     * @param mixed $instance The instance
-     * @return void
      */
-    public function set(string $abstract, $instance): void
+    public function set(string $abstract, mixed $instance): void
     {
         $this->instances[$abstract] = $instance;
     }
@@ -64,11 +51,9 @@ class Container
     /**
      * Resolve a type from the container
      * 
-     * @param string $abstract The abstract type
-     * @return mixed The resolved instance
      * @throws \Exception If the type cannot be resolved
      */
-    public function get(string $abstract)
+    public function get(string $abstract): mixed
     {
         // If we have an instance, return it
         if (isset($this->instances[$abstract])) {
@@ -105,11 +90,9 @@ class Container
     /**
      * Build a concrete instance of a class
      * 
-     * @param string $concrete The concrete class
-     * @return object The built instance
      * @throws \Exception If the class cannot be instantiated
      */
-    protected function build(string $concrete)
+    protected function build(string $concrete): object
     {
         // Create a reflection class
         $reflector = new \ReflectionClass($concrete);
@@ -123,7 +106,7 @@ class Container
         $constructor = $reflector->getConstructor();
         
         // If there is no constructor, just return a new instance
-        if (is_null($constructor)) {
+        if ($constructor === null) {
             return new $concrete();
         }
         
@@ -143,12 +126,23 @@ class Container
             $type = $parameter->getType();
             
             // If the parameter has no type hint, check if it has a default value
-            if (is_null($type)) {
+            if ($type === null) {
                 // If the parameter is optional, use the default value
                 if ($parameter->isOptional()) {
                     $dependencies[] = $parameter->getDefaultValue();
                 } else {
                     throw new \Exception("Cannot resolve parameter {$parameter->getName()} without type hint");
+                }
+                
+                continue;
+            }
+            
+            // If the type is a union type, we can't automatically resolve it
+            if ($type instanceof \ReflectionUnionType || $type instanceof \ReflectionIntersectionType) {
+                if ($parameter->isOptional()) {
+                    $dependencies[] = $parameter->getDefaultValue();
+                } else {
+                    throw new \Exception("Cannot resolve parameter {$parameter->getName()} with union or intersection type");
                 }
                 
                 continue;
@@ -178,9 +172,6 @@ class Container
     
     /**
      * Check if a binding exists
-     * 
-     * @param string $abstract The abstract type
-     * @return bool Whether the binding exists
      */
     public function has(string $abstract): bool
     {

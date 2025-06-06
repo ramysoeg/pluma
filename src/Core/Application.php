@@ -6,6 +6,7 @@ use Pluma\Container\Container;
 use Pluma\Http\Request;
 use Pluma\Http\Response;
 use Pluma\Http\Router;
+use Pluma\View\View;
 
 /**
  * Main Application Class
@@ -101,12 +102,29 @@ class Application
             return call_user_func_array($handler, array_merge([$this->container], $params));
         }
         
-        if (is_string($handler) && strpos($handler, '@') !== false) {
+        if (is_string($handler) && str_contains($handler, '@')) {
             // If the handler is in the format "Controller@method"
-            list($controller, $method) = explode('@', $handler);
+            [$controller, $method] = explode('@', $handler);
             
             if (!class_exists($controller)) {
                 throw new \Exception("Controller {$controller} not found", 500);
+            }
+            
+            // Register controller dependencies if not already registered
+            if (!$this->container->has($controller)) {
+                $this->container->singleton(View::class, function ($container) {
+                    $viewPath = PLUMA_ROOT . '/resources/views';
+                    return new \Pluma\View\View($viewPath);
+                });
+                
+                $this->container->singleton($controller, function ($container) use ($controller) {
+                    return new $controller(
+                        $container,
+                        $container->get(View::class),
+                        $container->get('request'),
+                        $container->get('response')
+                    );
+                });
             }
             
             $instance = $this->container->get($controller);
