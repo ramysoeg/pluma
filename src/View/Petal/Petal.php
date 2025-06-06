@@ -43,7 +43,7 @@ class Petal
     public function __construct(
         string $viewPath,
         string $cachePath = null,
-        bool $forceCompile = false
+        bool $forceCompile = true // Default to true to force compilation during development
     ) {
         $this->viewPath = rtrim($viewPath, '/');
         $this->cachePath = $cachePath ? rtrim($cachePath, '/') : $this->viewPath . '/cache';

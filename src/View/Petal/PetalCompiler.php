@@ -205,20 +205,6 @@ class PetalCompiler
         // Escape the pattern for use in a regular expression
         $escapedPattern = preg_quote($pattern, '/');
         
-        // If the pattern is {{ or {!! or {#, compile it differently
-        if (in_array($pattern, ['{{', '{!!', '{#'])) {
-            $endPattern = substr($pattern, 0, 1) . '}';
-            $escapedEndPattern = preg_quote($endPattern, '/');
-            
-            return preg_replace_callback(
-                "/{$escapedPattern}(.*?){$escapedEndPattern}/s",
-                function ($matches) use ($handler) {
-                    return $handler(trim($matches[1]));
-                },
-                $content
-            );
-        }
-        
         // Skip compilation of directives inside <pre><code> blocks
         if (in_array($pattern, ['@php', '@endphp'])) {
             $parts = preg_split('/(<pre.*?>.*?<\/pre>)/s', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -235,6 +221,34 @@ class PetalCompiler
                         function ($matches) use ($handler) {
                             $expression = isset($matches[1]) ? trim($matches[1]) : '';
                             return $handler($expression) . ($matches[2] ?? '');
+                        },
+                        $part
+                    );
+                }
+            }
+            
+            return $result;
+        }
+        
+        // If the pattern is {{ or {!! or {#, compile it differently
+        if (in_array($pattern, ['{{', '{!!', '{#'])) {
+            $endPattern = substr($pattern, 0, 1) . '}';
+            $escapedEndPattern = preg_quote($endPattern, '/');
+            
+            // Split the content to avoid processing inside <pre> tags
+            $parts = preg_split('/(<pre.*?>.*?<\/pre>)/s', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
+            $result = '';
+            
+            foreach ($parts as $part) {
+                if (strpos($part, '<pre') === 0) {
+                    // Don't process expressions inside <pre> tags
+                    $result .= $part;
+                } else {
+                    // Process expressions normally
+                    $result .= preg_replace_callback(
+                        "/{$escapedPattern}(.*?){$escapedEndPattern}/s",
+                        function ($matches) use ($handler) {
+                            return $handler(trim($matches[1]));
                         },
                         $part
                     );
