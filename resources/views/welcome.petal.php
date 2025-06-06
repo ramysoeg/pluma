@@ -25,8 +25,7 @@
             
             <h2 class="mt-4">Code Example</h2>
             
-            <pre class="bg-light p-3 rounded"><code>@php
-// Example controller code
+            <pre class="bg-light p-3 rounded"><code>// Example controller code
 class HomeController extends Controller
 {
     public function index()
@@ -36,8 +35,7 @@ class HomeController extends Controller
             'message' => 'A modern PHP framework with powerful features'
         ]);
     }
-}
-@endphp</code></pre>
+}</code></pre>
             
             @if($showButton)
                 <a href="/docs" class="btn btn-primary mt-3">Read the Documentation</a>

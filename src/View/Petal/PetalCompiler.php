@@ -219,6 +219,31 @@ class PetalCompiler
             );
         }
         
+        // Skip compilation of directives inside <pre><code> blocks
+        if (in_array($pattern, ['@php', '@endphp'])) {
+            $parts = preg_split('/(<pre.*?>.*?<\/pre>)/s', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
+            $result = '';
+            
+            foreach ($parts as $part) {
+                if (strpos($part, '<pre') === 0) {
+                    // Don't process directives inside <pre> tags
+                    $result .= $part;
+                } else {
+                    // Process directives normally
+                    $result .= preg_replace_callback(
+                        "/{$escapedPattern}(?:\s*\((.*?)\))?(\r?\n|$)/s",
+                        function ($matches) use ($handler) {
+                            $expression = isset($matches[1]) ? trim($matches[1]) : '';
+                            return $handler($expression) . ($matches[2] ?? '');
+                        },
+                        $part
+                    );
+                }
+            }
+            
+            return $result;
+        }
+        
         // Otherwise, compile it as a directive
         return preg_replace_callback(
             "/{$escapedPattern}(?:\s*\((.*?)\))?(\r?\n|$)/s",

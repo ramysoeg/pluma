@@ -45,26 +45,30 @@
                         <h4>Estruturas de Controle</h4>
                         
                         <h5>Condicionais</h5>
-                        <pre><code>@if($condition)
+                        <pre><code>// Exemplo de condicional
+if($condition) {
     // código aqui
-@elseif($anotherCondition)
+} elseif($anotherCondition) {
     // outro código
-@else
+} else {
     // código padrão
-@endif</code></pre>
+}</code></pre>
 
                         <h5>Loops</h5>
-                        <pre><code>@foreach($items as $item)
-    {{ $item }}
-@endforeach
+                        <pre><code>// Exemplo de foreach
+foreach($items as $item) {
+    echo $item;
+}
 
-@for($i = 0; $i < 10; $i++)
-    {{ $i }}
-@endfor
+// Exemplo de for
+for($i = 0; $i < 10; $i++) {
+    echo $i;
+}
 
-@while($condition)
+// Exemplo de while
+while($condition) {
     // código aqui
-@endwhile</code></pre>
+}</code></pre>
                     </div>
                 </div>
             </div>
