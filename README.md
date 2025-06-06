@@ -52,12 +52,19 @@ pluma/
 ├── public/            # Diretório público (ponto de entrada)
 ├── resources/         # Recursos da aplicação
 │   └── views/         # Templates de visualização
+├── routes/            # Arquivos de rotas
+│   ├── web.php        # Rotas para interface web
+│   └── api.php        # Rotas para API
 ├── src/               # Código fonte do framework
 │   ├── Container/     # Sistema de injeção de dependências
 │   ├── Core/          # Componentes principais
 │   ├── Database/      # Camada de acesso a dados
 │   ├── Http/          # Componentes HTTP
+│   ├── Providers/     # Provedores de serviços
 │   └── View/          # Sistema de templates
+├── storage/           # Armazenamento de arquivos
+│   └── framework/     # Arquivos gerados pelo framework
+│       └── views/     # Templates compilados
 ├── tests/             # Testes automatizados
 ├── vendor/            # Dependências (gerenciadas pelo Composer)
 ├── .env.example       # Exemplo de variáveis de ambiente
@@ -86,31 +93,59 @@ $app->run();
 
 ## Definindo Rotas
 
+As rotas são definidas nos arquivos da pasta `routes`:
+
+### Web Routes (routes/web.php)
+
 ```php
 <?php
-// config/routes.php
 
-use Pluma\Http\Router;
+use App\Controllers\HomeController;
+use App\Controllers\UserController;
 
-return function (Router $router): void {
-    // Rota para a página inicial
-    $router->get('/', 'App\\Controllers\\HomeController@index');
-    
-    // Rota com parâmetros
-    $router->get('/users/{id}', 'App\\Controllers\\UserController@show');
-    
-    // Rota com closure
-    $router->get('/hello/{name}', function ($container, $name) {
-        $response = $container->get('response');
-        $response->send("Hello, {$name}!");
-    });
-    
-    // Grupo de rotas
-    $router->group('/api', function (Router $router) {
-        $router->get('/users', 'App\\Controllers\\Api\\UserController@index');
-        $router->post('/users', 'App\\Controllers\\Api\\UserController@store');
-    });
-};
+// Rota para a página inicial
+Route::get('/', [HomeController::class, 'index']);
+
+// Rota com parâmetros
+Route::get('/users/{id}', [UserController::class, 'show']);
+
+// Rota com closure
+Route::get('/hello/{name}', function ($name) {
+    return "Hello, {$name}!";
+});
+
+// Grupo de rotas
+Route::group('/admin', function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard']);
+    Route::get('/users', [AdminController::class, 'users']);
+});
+
+// Rotas de recurso (7 rotas)
+Route::resource('posts', PostController::class);
+```
+
+### API Routes (routes/api.php)
+
+```php
+<?php
+
+use App\Controllers\Api\UserController;
+use App\Controllers\Api\PostController;
+
+// Rotas de API
+Route::get('/users', [UserController::class, 'index']);
+Route::post('/users', [UserController::class, 'store']);
+
+// Rotas de recurso para API (5 rotas)
+Route::apiResource('posts', PostController::class);
+
+// Rota com retorno JSON
+Route::get('/stats', function () {
+    return [
+        'users_count' => 100,
+        'posts_count' => 500,
+    ];
+});
 ```
 
 ## Criando um Controller

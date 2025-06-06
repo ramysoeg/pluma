@@ -106,13 +106,23 @@ class Router
     /**
      * Add a route to the router
      */
-    protected function addRoute(string $method, string $path, mixed $handler): self
+    public function addRoute(string $method, string $path, mixed $handler): self
     {
         // Prepend the prefix to the path
         $path = $this->prefix . '/' . ltrim($path, '/');
         
         // Normalize the path (remove duplicate slashes)
         $path = '/' . trim($path, '/');
+        
+        // Convert array handler to string format
+        if (is_array($handler) && count($handler) === 2) {
+            if (is_object($handler[0]) && $handler[0] instanceof \Closure) {
+                // It's a closure, keep it as is
+            } elseif (is_string($handler[0]) && is_string($handler[1])) {
+                // It's a controller class and method
+                $handler = $handler[0] . '@' . $handler[1];
+            }
+        }
         
         $this->routes[$method][$path] = [
             'path' => $path,

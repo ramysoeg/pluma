@@ -65,11 +65,15 @@ class Bootstrap
     
     /**
      * Load routes
-     * 
-     * @return void
      */
     protected function loadRoutes(): void
     {
+        // Use the RouteServiceProvider to load routes
+        $routeServiceProvider = new \Pluma\Providers\RouteServiceProvider($this->container);
+        $routeServiceProvider->register();
+        $routeServiceProvider->boot();
+        
+        // For backward compatibility, also load routes from config/routes.php if it exists
         $router = $this->container->get('router');
         $routesPath = PLUMA_ROOT . '/config/routes.php';
         
