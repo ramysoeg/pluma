@@ -90,11 +90,35 @@ class PetalLayout
     }
     
     /**
+     * Set the parent layout
+     */
+    public function setLayout(?string $layout): void
+    {
+        $this->layout = $layout;
+    }
+    
+    /**
      * Check if a layout is set
      */
     public function hasLayout(): bool
     {
         return $this->layout !== null;
+    }
+    
+    /**
+     * Get all sections
+     */
+    public function getSections(): array
+    {
+        return $this->sections;
+    }
+    
+    /**
+     * Set a section directly
+     */
+    public function setSection(string $name, string $content): void
+    {
+        $this->sections[$name] = $content;
     }
     
     /**

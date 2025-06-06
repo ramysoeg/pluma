@@ -64,7 +64,7 @@ class Petal
     /**
      * Render a template
      */
-    public function render(string $template, array $data = []): string
+    public function render(string $template, array $data = [], bool $isLayout = false): string
     {
         // Merge the shared data with the template data
         $data = array_merge($this->shared, $data);
@@ -89,10 +89,36 @@ class Petal
         // Get the contents of the buffer
         $content = ob_get_clean();
         
-        // If a layout is set, render it
-        if ($this->layout->hasLayout()) {
-            $content = $this->layout->renderLayout($data);
+        // If a layout is set and this is not a layout being rendered, render the layout
+        if ($this->layout->hasLayout() && !$isLayout) {
+            // Store the current content in a section called 'content' if not already set
+            if (!isset($this->layout->getSections()['content'])) {
+                $this->layout->setSection('content', $content);
+            }
+            
+            // Render the layout
+            $content = $this->renderLayout($data);
         }
+        
+        return $content;
+    }
+    
+    /**
+     * Render a layout
+     */
+    protected function renderLayout(array $data = []): string
+    {
+        $layout = $this->layout->getLayout();
+        
+        // Reset the layout to prevent infinite recursion
+        $currentLayout = $layout;
+        $this->layout->setLayout(null);
+        
+        // Render the layout
+        $content = $this->render($currentLayout, $data, true);
+        
+        // Restore the layout
+        $this->layout->setLayout($currentLayout);
         
         return $content;
     }
