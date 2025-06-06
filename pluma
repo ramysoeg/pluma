@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Pluma Framework - CLI Application
+ */
+
+// Define the application root path
+define('PLUMA_ROOT', __DIR__);
+
+// Load the autoloader
+require __DIR__ . '/bootstrap/autoload.php';
+
+// Create and run the console application
+$app = new Pluma\Console\Application();
+exit($app->run($argv));

@@ -29,18 +29,63 @@ composer create-project ramysoeg/pluma my-project
 cd my-project
 ```
 
-## Servidor de Desenvolvimento
+## CLI
 
-Para iniciar o servidor de desenvolvimento:
+O Pluma Framework inclui uma interface de linha de comando (CLI) para ajudar no desenvolvimento:
 
 ```bash
-php serve
+./pluma [comando] [opções] [argumentos]
 ```
 
-Ou especificando host e porta:
+### Comandos Disponíveis
+
+- `serve`: Inicia o servidor de desenvolvimento
+- `make:controller`: Cria um novo controller
+- `make:model`: Cria um novo model
+- `make:command`: Cria um novo comando de console
+
+### Exemplos
+
+Iniciar o servidor de desenvolvimento:
 
 ```bash
-php serve 0.0.0.0 8080
+./pluma serve
+```
+
+Especificar host e porta:
+
+```bash
+./pluma serve --host=0.0.0.0 --port=8080
+```
+
+Criar um controller:
+
+```bash
+./pluma make:controller UserController
+```
+
+Criar um controller de recurso:
+
+```bash
+./pluma make:controller UserController --resource
+```
+
+Criar um model:
+
+```bash
+./pluma make:model User
+```
+
+Criar um model com controller e migration:
+
+```bash
+./pluma make:model User --all
+```
+
+Criar um comando personalizado:
+
+```bash
+./pluma make:command SendEmails
 ```
 
 ## Estrutura de Diretórios
