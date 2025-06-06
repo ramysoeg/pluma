@@ -2,25 +2,26 @@
 
 namespace Pluma\Database;
 
+use Pluma\Database\Drivers\DatabaseDriverFactory;
+use Pluma\Database\Drivers\DatabaseDriverInterface;
+
 /**
  * Database Class
  */
 class Database
 {
     /**
-     * @var \PDO The PDO instance
+     * The database driver
      */
-    protected \PDO $pdo;
+    protected DatabaseDriverInterface $driver;
     
     /**
-     * @var array The database configuration
+     * The database configuration
      */
     protected array $config;
     
     /**
      * Database constructor
-     * 
-     * @param array $config The database configuration
      */
     public function __construct(array $config)
     {
@@ -30,149 +31,127 @@ class Database
     
     /**
      * Connect to the database
-     * 
-     * @return void
      */
     protected function connect(): void
     {
         $driver = $this->config['driver'] ?? 'mysql';
-        $host = $this->config['host'] ?? 'localhost';
-        $port = $this->config['port'] ?? 3306;
-        $database = $this->config['database'] ?? '';
-        $username = $this->config['username'] ?? 'root';
-        $password = $this->config['password'] ?? '';
-        $charset = $this->config['charset'] ?? 'utf8mb4';
-        $options = $this->config['options'] ?? [];
         
-        $dsn = "{$driver}:host={$host};port={$port};dbname={$database};charset={$charset}";
+        // Create the driver
+        $this->driver = DatabaseDriverFactory::create($driver, $this->config);
         
-        // Default options
-        $defaultOptions = [
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-            \PDO::ATTR_EMULATE_PREPARES => false,
-        ];
-        
-        // Merge the options
-        $options = array_merge($defaultOptions, $options);
-        
-        // Create the PDO instance
-        $this->pdo = new \PDO($dsn, $username, $password, $options);
+        // Connect to the database
+        $this->driver->connect();
     }
     
     /**
-     * Get the PDO instance
-     * 
-     * @return \PDO The PDO instance
+     * Get the database driver
      */
-    public function getPdo(): \PDO
+    public function getDriver(): DatabaseDriverInterface
     {
-        return $this->pdo;
+        return $this->driver;
+    }
+    
+    /**
+     * Get the database connection
+     */
+    public function getConnection(): mixed
+    {
+        return $this->driver->getConnection();
     }
     
     /**
      * Execute a query
-     * 
-     * @param string $query The SQL query
-     * @param array $params The query parameters
-     * @return \PDOStatement The PDO statement
      */
-    public function query(string $query, array $params = []): \PDOStatement
+    public function query(string $query, array $params = []): mixed
     {
-        $statement = $this->pdo->prepare($query);
-        $statement->execute($params);
-        
-        return $statement;
+        return $this->driver->query($query, $params);
     }
     
     /**
      * Execute a query and fetch all results
-     * 
-     * @param string $query The SQL query
-     * @param array $params The query parameters
-     * @return array The query results
      */
     public function fetchAll(string $query, array $params = []): array
     {
-        return $this->query($query, $params)->fetchAll();
+        return $this->driver->fetchAll($query, $params);
     }
     
     /**
      * Execute a query and fetch the first result
-     * 
-     * @param string $query The SQL query
-     * @param array $params The query parameters
-     * @return array|null The query result
      */
     public function fetch(string $query, array $params = []): ?array
     {
-        $result = $this->query($query, $params)->fetch();
-        
-        return $result !== false ? $result : null;
+        return $this->driver->fetch($query, $params);
     }
     
     /**
      * Execute a query and fetch the first column of the first result
-     * 
-     * @param string $query The SQL query
-     * @param array $params The query parameters
-     * @return mixed The query result
      */
-    public function fetchColumn(string $query, array $params = [])
+    public function fetchColumn(string $query, array $params = []): mixed
     {
-        return $this->query($query, $params)->fetchColumn();
+        return $this->driver->fetchColumn($query, $params);
     }
     
     /**
      * Execute a query and return the number of affected rows
-     * 
-     * @param string $query The SQL query
-     * @param array $params The query parameters
-     * @return int The number of affected rows
      */
     public function execute(string $query, array $params = []): int
     {
-        return $this->query($query, $params)->rowCount();
+        return $this->driver->execute($query, $params);
     }
     
     /**
      * Begin a transaction
-     * 
-     * @return bool Whether the transaction was started
      */
     public function beginTransaction(): bool
     {
-        return $this->pdo->beginTransaction();
+        return $this->driver->beginTransaction();
     }
     
     /**
      * Commit a transaction
-     * 
-     * @return bool Whether the transaction was committed
      */
     public function commit(): bool
     {
-        return $this->pdo->commit();
+        return $this->driver->commit();
     }
     
     /**
      * Rollback a transaction
-     * 
-     * @return bool Whether the transaction was rolled back
      */
     public function rollback(): bool
     {
-        return $this->pdo->rollBack();
+        return $this->driver->rollback();
     }
     
     /**
      * Get the last inserted ID
-     * 
-     * @param string|null $name The name of the sequence object
-     * @return string The last inserted ID
      */
-    public function lastInsertId(string $name = null): string
+    public function lastInsertId(?string $name = null): string
     {
-        return $this->pdo->lastInsertId($name);
+        return $this->driver->lastInsertId($name);
+    }
+    
+    /**
+     * Check if the database is connected
+     */
+    public function isConnected(): bool
+    {
+        return $this->driver->isConnected();
+    }
+    
+    /**
+     * Disconnect from the database
+     */
+    public function disconnect(): void
+    {
+        $this->driver->disconnect();
+    }
+    
+    /**
+     * Get the driver name
+     */
+    public function getDriverName(): string
+    {
+        return $this->driver->getName();
     }
 }

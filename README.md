@@ -29,6 +29,42 @@ composer create-project ramysoeg/pluma my-project
 cd my-project
 ```
 
+## Servidor de Desenvolvimento
+
+Para iniciar o servidor de desenvolvimento:
+
+```bash
+php serve
+```
+
+Ou especificando host e porta:
+
+```bash
+php serve 0.0.0.0 8080
+```
+
+## Estrutura de Diretórios
+
+```
+pluma/
+├── bootstrap/         # Scripts de inicialização
+├── config/            # Arquivos de configuração
+├── public/            # Diretório público (ponto de entrada)
+├── resources/         # Recursos da aplicação
+│   └── views/         # Templates de visualização
+├── src/               # Código fonte do framework
+│   ├── Container/     # Sistema de injeção de dependências
+│   ├── Core/          # Componentes principais
+│   ├── Database/      # Camada de acesso a dados
+│   ├── Http/          # Componentes HTTP
+│   └── View/          # Sistema de templates
+├── tests/             # Testes automatizados
+├── vendor/            # Dependências (gerenciadas pelo Composer)
+├── .env.example       # Exemplo de variáveis de ambiente
+├── composer.json      # Configuração do Composer
+└── README.md          # Documentação
+```
+
 ## Uso Básico
 
 ```php
@@ -123,6 +159,122 @@ class UserController extends Controller
     }
 }
 ```
+
+## Trabalhando com Modelos
+
+```php
+<?php
+
+namespace App\Models;
+
+use Pluma\Database\Model;
+
+class User extends Model
+{
+    // Define a tabela (opcional, por padrão é o nome da classe no plural)
+    protected static string $table = 'users';
+    
+    // Define os campos que podem ser preenchidos em massa
+    protected array $fillable = ['name', 'email', 'password'];
+    
+    // Define os campos que não podem ser preenchidos em massa
+    protected array $guarded = ['id', 'created_at', 'updated_at'];
+    
+    // Exemplo de método personalizado
+    public function setPasswordAttribute(string $value): void
+    {
+        $this->attributes['password'] = password_hash($value, PASSWORD_BCRYPT);
+    }
+}
+```
+
+## Usando o Container de Injeção de Dependências
+
+```php
+<?php
+
+// Registrar um serviço
+$container = $app->getContainer();
+$container->singleton(UserRepository::class, function ($container) {
+    return new UserRepository($container->get(Database::class));
+});
+
+// Resolver um serviço
+$userRepository = $container->get(UserRepository::class);
+```
+
+## Configuração do Banco de Dados
+
+O Pluma Framework suporta múltiplos drivers de banco de dados através de um sistema de drivers flexível. Os drivers suportados nativamente são:
+
+- MySQL
+- SQLite
+- PostgreSQL
+- MongoDB (requer extensão MongoDB para PHP)
+
+Edite o arquivo `.env` na raiz do projeto para configurar o banco de dados:
+
+```
+# Escolha o driver (mysql, sqlite, pgsql, mongodb)
+DB_CONNECTION=mysql
+
+# MySQL
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=pluma
+DB_USERNAME=root
+DB_PASSWORD=secret
+DB_PREFIX=
+
+# SQLite
+# DB_CONNECTION=sqlite
+# DB_DATABASE=/absolute/path/to/database.sqlite
+
+# PostgreSQL
+# DB_CONNECTION=pgsql
+# DB_HOST=localhost
+# DB_PORT=5432
+# DB_DATABASE=pluma
+# DB_USERNAME=postgres
+# DB_PASSWORD=secret
+# DB_SCHEMA=public
+
+# MongoDB
+# DB_CONNECTION=mongodb
+# DB_HOST=localhost
+# DB_PORT=27017
+# DB_DATABASE=pluma
+# DB_USERNAME=mongouser
+# DB_PASSWORD=secret
+# DB_AUTH_SOURCE=admin
+```
+
+### Registrando Drivers Personalizados
+
+Você pode registrar drivers personalizados para outros bancos de dados:
+
+```php
+<?php
+
+use Pluma\Database\Drivers\DatabaseDriverFactory;
+
+// Registrar um driver personalizado
+DatabaseDriverFactory::register('mssql', \App\Database\Drivers\MsSqlDriver::class);
+
+// Usar o driver
+$db = new \Pluma\Database\Database([
+    'driver' => 'mssql',
+    'host' => 'localhost',
+    'port' => 1433,
+    'database' => 'pluma',
+    'username' => 'sa',
+    'password' => 'secret',
+]);
+```
+
+## Contribuindo
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.
 
 ## Licença
 
