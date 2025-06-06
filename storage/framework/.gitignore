@@ -1,0 +1,5 @@
+*
+!.gitignore
+!views/
+views/*
+!views/.gitignore

@@ -1,6 +1,7 @@
 <?php
 
 use Pluma\Core\ExampleController;
+use Pluma\Core\ExamplePetalController;
 use Pluma\Http\Router;
 
 /**
@@ -28,4 +29,7 @@ return function (Router $router): void {
         $response->setHeader('Content-Type', 'text/html');
         $response->send("Hello, {$name}!");
     });
+    
+    // Petal template demo
+    $router->get('/petal-demo', 'Pluma\\Core\\ExamplePetalController@demo');
 };

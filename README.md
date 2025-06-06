@@ -327,6 +327,12 @@ public function index(): string
 }
 ```
 
+### Página de Demonstração
+
+O Pluma inclui uma página de demonstração completa do sistema Petal que você pode acessar em `/petal-demo`. Esta página mostra todos os recursos do Petal em ação.
+
+Para mais detalhes, consulte a [documentação completa do Petal](docs/petal-templates.md).
+
 ## Contribuindo
 
 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.
