@@ -169,13 +169,95 @@ class View
      */
     protected function renderPetal(string $view, array $data = []): string
     {
-        // Create the Petal engine if it doesn't exist
-        if ($this->petal === null) {
-            $this->petal = new Petal($this->viewPath, $this->cachePath);
-        }
+        // Get the template path
+        $templatePath = $this->getPetalViewFile($view);
         
-        // Render the view
-        return $this->petal->render($view, $data);
+        // Get the template content
+        $content = file_get_contents($templatePath);
+        
+        // Simple template compilation
+        $content = $this->compileTemplate($content, $data);
+        
+        return $content;
+    }
+    
+    /**
+     * Simple template compilation
+     */
+    protected function compileTemplate(string $content, array $data): string
+    {
+        // Extract the data
+        extract($data);
+        
+        // Replace {{ $var }} with the variable value
+        $content = preg_replace_callback('/\{\{\s*\$([a-zA-Z0-9_]+)(?:\[\'([a-zA-Z0-9_]+)\'\])?\s*\}\}/s', function($matches) use ($data) {
+            $var = $matches[1];
+            
+            if (isset($matches[2])) {
+                // Handle array access like $feature['title']
+                $key = $matches[2];
+                return isset(${$var}[$key]) ? htmlspecialchars(${$var}[$key]) : '';
+            } else {
+                // Handle simple variables like $title
+                return isset(${$var}) ? htmlspecialchars(${$var}) : '';
+            }
+        }, $content);
+        
+        // Replace {!! $var !!} with the raw variable value
+        $content = preg_replace_callback('/\{!!\s*\$([a-zA-Z0-9_]+)(?:\[\'([a-zA-Z0-9_]+)\'\])?\s*!!\}/s', function($matches) use ($data) {
+            $var = $matches[1];
+            
+            if (isset($matches[2])) {
+                // Handle array access like $feature['title']
+                $key = $matches[2];
+                return isset(${$var}[$key]) ? ${$var}[$key] : '';
+            } else {
+                // Handle simple variables like $title
+                return isset(${$var}) ? ${$var} : '';
+            }
+        }, $content);
+        
+        // Process @if, @foreach, etc. directives
+        $content = $this->compileDirectives($content);
+        
+        return $content;
+    }
+    
+    /**
+     * Compile directives
+     */
+    protected function compileDirectives(string $content): string
+    {
+        // @if directive
+        $content = preg_replace('/@if\s*\((.*?)\)/s', '<?php if($1): ?>', $content);
+        $content = preg_replace('/@elseif\s*\((.*?)\)/s', '<?php elseif($1): ?>', $content);
+        $content = preg_replace('/@else/s', '<?php else: ?>', $content);
+        $content = preg_replace('/@endif/s', '<?php endif; ?>', $content);
+        
+        // @foreach directive
+        $content = preg_replace('/@foreach\s*\((.*?)\)/s', '<?php foreach($1): ?>', $content);
+        $content = preg_replace('/@endforeach/s', '<?php endforeach; ?>', $content);
+        
+        // @for directive
+        $content = preg_replace('/@for\s*\((.*?)\)/s', '<?php for($1): ?>', $content);
+        $content = preg_replace('/@endfor/s', '<?php endfor; ?>', $content);
+        
+        // @while directive
+        $content = preg_replace('/@while\s*\((.*?)\)/s', '<?php while($1): ?>', $content);
+        $content = preg_replace('/@endwhile/s', '<?php endwhile; ?>', $content);
+        
+        // @php directive
+        $content = preg_replace('/@php/s', '<?php', $content);
+        $content = preg_replace('/@endphp/s', '?>', $content);
+        
+        // Start output buffering
+        ob_start();
+        
+        // Evaluate the template
+        eval('?>' . $content);
+        
+        // Get the contents of the buffer
+        return ob_get_clean();
     }
     
     /**
