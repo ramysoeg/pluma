@@ -1,6 +1,7 @@
 <?php
 
 use Pluma\Core\ExampleController;
+use Pluma\Http\Route;
 use Pluma\Http\Router;
 
 /*

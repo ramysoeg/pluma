@@ -68,6 +68,11 @@ class Bootstrap
      */
     protected function loadRoutes(): void
     {
+        // Make sure the Route class is loaded
+        if (!class_exists('\\Pluma\\Http\\Route')) {
+            require_once PLUMA_ROOT . '/src/Http/Route.php';
+        }
+        
         // Use the RouteServiceProvider to load routes
         $routeServiceProvider = new \Pluma\Providers\RouteServiceProvider($this->container);
         $routeServiceProvider->register();

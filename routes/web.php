@@ -3,6 +3,7 @@
 use Pluma\Core\ExampleController;
 use Pluma\Core\ExamplePetalController;
 use Pluma\Core\ExamplesController;
+use Pluma\Http\Route;
 use Pluma\Http\Router;
 
 /*
