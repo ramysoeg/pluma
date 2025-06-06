@@ -4,9 +4,6 @@
  * Pluma Framework - Development Server
  */
 
-// Define a constant for the application root path
-define('PLUMA_ROOT', __DIR__);
-
 // Parse the URI
 $uri = urldecode(
     parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)

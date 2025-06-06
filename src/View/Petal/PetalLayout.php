@@ -25,12 +25,12 @@ class PetalLayout
     /**
      * The engine instance
      */
-    protected PetalEngine $engine;
+    protected $engine;
     
     /**
      * Constructor
      */
-    public function __construct(PetalEngine $engine)
+    public function __construct($engine)
     {
         $this->engine = $engine;
     }

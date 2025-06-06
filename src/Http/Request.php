@@ -8,53 +8,63 @@ namespace Pluma\Http;
 class Request
 {
     /**
+     * The request query parameters ($_GET)
+     */
+    protected array $query = [];
+    
+    /**
+     * The request body parameters ($_POST)
+     */
+    protected array $request = [];
+    
+    /**
+     * The request cookies ($_COOKIE)
+     */
+    protected array $cookies = [];
+    
+    /**
+     * The request files ($_FILES)
+     */
+    protected array $files = [];
+    
+    /**
+     * The request server parameters ($_SERVER)
+     */
+    protected array $server = [];
+    
+    /**
+     * The request headers
+     */
+    protected array $headers = [];
+    
+    /**
+     * The request method
+     */
+    protected string $method = 'GET';
+    
+    /**
+     * The request URI
+     */
+    protected string $uri = '/';
+    
+    /**
+     * The request path
+     */
+    protected string $path = '/';
+    
+    /**
      * Request constructor
      */
     public function __construct(
-        /**
-         * The request query parameters ($_GET)
-         */
-        protected readonly array $query = [],
-        
-        /**
-         * The request body parameters ($_POST)
-         */
-        protected readonly array $request = [],
-        
-        /**
-         * The request cookies ($_COOKIE)
-         */
-        protected readonly array $cookies = [],
-        
-        /**
-         * The request files ($_FILES)
-         */
-        protected readonly array $files = [],
-        
-        /**
-         * The request server parameters ($_SERVER)
-         */
-        protected readonly array $server = [],
-        
-        /**
-         * The request headers
-         */
-        protected readonly array $headers = [],
-        
-        /**
-         * The request method
-         */
-        protected readonly string $method = 'GET',
-        
-        /**
-         * The request URI
-         */
-        protected readonly string $uri = '/',
-        
-        /**
-         * The request path
-         */
-        protected readonly string $path = '/'
+        array $query = [],
+        array $request = [],
+        array $cookies = [],
+        array $files = [],
+        array $server = [],
+        array $headers = [],
+        string $method = 'GET',
+        string $uri = '/',
+        string $path = '/'
     ) {
         // Initialize with superglobals if not provided
         $this->query = $query ?: $_GET ?? [];

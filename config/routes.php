@@ -2,6 +2,7 @@
 
 use Pluma\Core\ExampleController;
 use Pluma\Core\ExamplePetalController;
+use Pluma\Core\ExamplesController;
 use Pluma\Http\Router;
 
 /**
@@ -32,4 +33,10 @@ return function (Router $router): void {
     
     // Petal template demo
     $router->get('/petal-demo', 'Pluma\\Core\\ExamplePetalController@demo');
+    
+    // Examples
+    $router->get('/examples', 'Pluma\\Core\\ExamplesController@index');
+    $router->get('/examples/templates', 'Pluma\\Core\\ExamplesController@templates');
+    $router->get('/examples/database', 'Pluma\\Core\\ExamplesController@database');
+    $router->get('/examples/forms', 'Pluma\\Core\\ExamplesController@forms');
 };
